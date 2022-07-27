@@ -1,0 +1,8 @@
+*.swp
+*.egg-info/
+*.~lock*
+__pycache__/
+venv*/
+.idea/
+doc/build/
+doc/source/apsrm*

@@ -1,0 +1,10 @@
+activity,virons,breathing_rate
+singing_voiced,61723040,1
+singing_whispered,6554096,1
+speech_loud,9035744,0.75
+counting_voiced,4581504,0.75
+speech_intermediate,4581504,0.75
+counting_whispered,2354384,0.75
+speech_quiet,1845328,0.75
+breathing_nose_mouth,2099856,0.5
+breathing,318160,0.5

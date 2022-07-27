@@ -1,0 +1,37 @@
+{
+    "breathing": {
+        "singing_voiced": 1.0,
+        "singing_whispered": 1.0,
+        "speech_loud": 0.75,
+        "counting_voiced": 0.75,
+        "speech_intermediate": 0.75,
+        "counting_whispered": 0.75,
+        "speech_quiet": 0.75,
+        "breathing_nose_mouth": 0.5,
+        "breathing": 0.5
+    },
+    "variants": {
+        "wt": {
+            "singing_voiced": 964.4225,
+            "singing_whispered": 102.40775,
+            "speech_loud": 105.887625,
+            "counting_voiced": 53.6895,
+            "speech_intermediate": 53.6895,
+            "counting_whispered": 27.5904375,
+            "speech_quiet": 21.6249375,
+            "breathing_nose_mouth": 16.405125,
+            "breathing": 2.485625
+        },
+        "delta": {
+            "singing_voiced": 1928.845,
+            "singing_whispered": 204.8155,
+            "speech_loud": 211.77525,
+            "counting_voiced": 107.379,
+            "speech_intermediate": 107.379,
+            "counting_whispered": 55.180875,
+            "speech_quiet": 43.249875,
+            "breathing_nose_mouth": 32.81025,
+            "breathing": 4.97125
+        }
+    }
+}
