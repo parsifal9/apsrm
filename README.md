@@ -29,7 +29,7 @@ algorithms that execute the following steps (in order) in each day:
 ## Getting Started
 
 On a proper operating system (in this case, one with [make](https://www.gnu.org/software/make/)
-installed), after cloning this repository, you should be able to simply run
+installed), after cloning this repository, you can run
 
 ```bash
 make initial-setup
@@ -67,7 +67,7 @@ learn about working with Jupyter.
 
 - [virtualenv](https://virtualenv.pypa.io/en/latest/) for making environments, though you can
   probably just use the *venv* module as per the advice at that link. This is not required, but life
-is much easier with a virtual environment.
+  is much easier with a virtual environment.
 
 - To generate the data used by the PCR test (which you can do with `make data`), you will need
   [Rscript](https://www.rdocumentation.org/packages/utils/versions/3.6.2/topics/Rscript) (installed
@@ -115,7 +115,8 @@ is much easier with a virtual environment.
 
 - ***MANIFEST.in***: Tells *setup.py* what files should be installed with the package.
 
-- ***setup.py***: The setup script for the package.
+- ***setup.py***: The setup script for the package. Will accept optional dependencies
+  *dev* and *notebooks*.
 
 - ***version***: Contains a version number for the Python package.
 
@@ -144,7 +145,7 @@ The implementation is mostly in private modules under *./apsrm* and the public A
 
 ### Docker
 
-Provided for conveniences, but might be useful if you don't have a proper operating system but can
+Provided for convenience. Might be useful if you don't have a proper operating system but can
 install [Docker](https://www.docker.com/).  Build with
 
 ```bash
@@ -171,7 +172,7 @@ Generated documenation can be found at *./doc/build/index.html*.
 
 
 
-### Optional Requirements
+### Optional Requirements (which can be specified when installing the package)
 
 #### dev
 
