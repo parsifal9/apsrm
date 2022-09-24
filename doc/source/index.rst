@@ -81,9 +81,6 @@ randomly infected with this probability.
 Glossary
 ========
 
-This glossary is tuned to how we use the terms within CVTS, which is often different on how they are
-used more generally.
-
 .. glossary::
 
     appointment

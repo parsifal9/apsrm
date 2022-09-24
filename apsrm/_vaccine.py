@@ -24,30 +24,36 @@ class Vaccine:
 
     You can find the data for this vaccine in the file *vaccineefficacy.json* or
     simply view it :ref:`here<vaccine-efficacy-data>`.
+
+    :param relative_protection_scalar: The relative level of protection
+        against infection offered by the vaccine.
     """
 
+    #: The default level of protection against infection offered when the
+    #: vaccine is first administered.
+    BASELINE_PROTECTION = VACCINE_DATA[0]
+
+    def __init__(self, relative_protection_scalar: float = 1.):
+        self.relative_protection_scalar = relative_protection_scalar
+
     @staticmethod
-    def relative_infectiousness(person, time_since_vaccination):
+    def relative_infectiousness(person,
+                                time_since_vaccination: float) -> float:
         """Relative infectiousness of *person*, *time_since_vaccination* periods after being vaccinated.
 
         :param apsrm.Person person: The person.
-        :param Numeric time_since_vaccination: The time since they were
-            vaccinated.
-
-        :rtype: float
+        :param time_since_vaccination: The time since they were vaccinated.
         """
         return 1.
 
-    @staticmethod
-    def relative_susceptibility(person, time_since_vaccination):
+    def relative_susceptibility(self, person,
+                                time_since_vaccination: float) -> float:
         """Relative susceptibility of *person*, *time_since_vaccination* periods after being vaccinated.
 
         :param apsrm.Person person: The person.
-        :param Numeric time_since_vaccination: The time since they were
-            vaccinated.
-
-        :rtype: float
+        :param time_since_vaccination: The time since they were vaccinated.
         """
+
         if time_since_vaccination < 0.: return 1.
-        return 1. - VACCINE_DATA[min(floor(time_since_vaccination),
-                                     len(VACCINE_DATA) - 1)]
+        return 1. - self.relative_protection_scalar * \
+            VACCINE_DATA[min(floor(time_since_vaccination), len(VACCINE_DATA) - 1)]

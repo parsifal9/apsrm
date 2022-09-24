@@ -1,6 +1,7 @@
 *.swp
 *.egg-info/
 *.~lock*
+.#*
 __pycache__/
 venv*/
 .idea/

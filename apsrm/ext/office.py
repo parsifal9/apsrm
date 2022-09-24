@@ -532,7 +532,7 @@ def populate_workplace(
         if boxes is None:
             return 0
 
-        total_capacity = floor(frac_of_max_occupancy * sum(o.max_occupancy for o in boxes))
+        total_capacity = floor(frac_of_max_occupancy * sum(b.max_occupancy for b in boxes))
         if total_capacity == 0:
             return 0
 
