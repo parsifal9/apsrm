@@ -267,7 +267,7 @@ class LunchGenerator(PeriodGenerator):
 
     @classmethod
     def duration_generator(cls, *args, **kwargs):
-        return cls.DURATION_DIST.rvs(size=1)[0]
+        return max(.16, cls.DURATION_DIST.rvs(size=1)[0])
 
     def __init__(self,
             start_time_generator = None,
