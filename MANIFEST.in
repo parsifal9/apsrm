@@ -1,4 +1,4 @@
 include apsrm/emissions.json
-include eipboxes/pcrbetaparams.json
-include eipboxes/vaccineefficacy.json
+include apsrm/pcrbetaparams.json
+include apsrm/vaccineefficacy.json
 include version
