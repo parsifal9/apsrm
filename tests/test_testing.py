@@ -12,34 +12,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest as pt
 from math import sqrt
-from scipy.stats import (
-    gamma,
-    bernoulli,
-    weibull_min as weibull)
-from apsrm import Person, Pathogen
-from apsrm.config import DEFAULT_PATHOGEN_DIEOFF_RATE
+
+import pytest as pt
+from scipy.stats import bernoulli, gamma
+from scipy.stats import weibull_min as weibull
+
+from apsrm import Pathogen, Person
 from apsrm._testing import BetaBernoulli
+from apsrm.config import DEFAULT_PATHOGEN_DIEOFF_RATE
+
 
 @pt.fixture
 def pathogen():
-    infectivity_dist    = gamma(3.420, 0, 1.338)
-    incubation_dist     = weibull(3., 0, 7.2)
+    infectivity_dist = gamma(3.420, 0, 1.338)
+    incubation_dist = weibull(3., 0, 7.2)
     shows_symptoms_dist = bernoulli(.5)
     return Pathogen(
         'delta',
-        infectivity_function = lambda time_diff, person: infectivity_dist.pdf(time_diff),
-        incubation_period_function = lambda person: incubation_dist.rvs(size=1),
-        shows_symptoms_function = lambda person: shows_symptoms_dist.rvs(size=1)[0] == 1,
-        is_honest_function = lambda person: True,
-        dieoff_rate = DEFAULT_PATHOGEN_DIEOFF_RATE)
+        infectivity_function=lambda time_diff, person: infectivity_dist.pdf(
+            time_diff),
+        incubation_period_function=lambda person: incubation_dist.rvs(size=1),
+        shows_symptoms_function=lambda person: shows_symptoms_dist.rvs(size=1)[
+            0] == 1,
+        is_honest_function=lambda person: True,
+        dieoff_rate=DEFAULT_PATHOGEN_DIEOFF_RATE)
+
 
 @pt.fixture
 def person(pathogen):
     p = Person(42)
     p.infect(0, pathogen)
     return p
+
 
 def test_load_beta_bernouli(person):
     bb = BetaBernoulli()
@@ -50,14 +55,14 @@ def test_load_beta_bernouli(person):
     def do_period(period):
         a = bb._alphas[period]
         b = bb._betas[period]
-        m = n*a / (a+b)
-        v = n*a*b*(a + b + n) / ((a+b)*(a+b)*(a+b+1))
-        s = sqrt(v)/n
+        m = n * a / (a + b)
+        v = n * a * b * (a + b + n) / ((a + b) * (a + b) * (a + b + 1))
+        s = sqrt(v) / n
         res = sum([bb(person, period) for i in range(n)])
 
         # will fail occasionally
-        assert res == pt.approx(m, 5.*s)
+        assert res == pt.approx(m, 5. * s)
 
     do_period(2)
     do_period(0)
-    do_period(len(bb._alphas)-1)
+    do_period(len(bb._alphas) - 1)

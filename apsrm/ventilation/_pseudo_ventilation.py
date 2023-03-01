@@ -13,16 +13,12 @@
 # limitations under the License.
 
 import numpy as np
-from ..config import END_OF_PERIOD_TIME
-from ..interval import (
-    get_overlapping_interval,
-    intermediate_intervals,
-    merge_intervals)
-from .._pathogen import (
-    ingestion_by_time,
-    concentration_at_time)
-from ._base import VentilationSubSystem
 
+from .._pathogen import concentration_at_time, ingestion_by_time
+from ..config import END_OF_PERIOD_TIME
+from ..interval import (get_overlapping_interval, intermediate_intervals,
+                        merge_intervals)
+from ._base import VentilationSubSystem
 
 
 class PseudoVentilationSystem(VentilationSubSystem):

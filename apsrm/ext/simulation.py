@@ -14,21 +14,16 @@
 
 import os
 from math import floor
-import numpy as np
+
 import matplotlib.pyplot as plt
-from scipy.stats import (
-    gamma,
-    bernoulli,
-    weibull_min as weibull)
-from ..config import (
-    END_OF_PERIOD_TIME,
-    DEFAULT_PATHOGEN_DIEOFF_RATE)
+import numpy as np
+from scipy.stats import bernoulli, gamma
+from scipy.stats import weibull_min as weibull
+
 from .._pathogen import Pathogen
 from .._workplace import EveryoneInfected
-from .office import (
-    add_ventilation_matrix,
-    populate_workplace)
-
+from ..config import DEFAULT_PATHOGEN_DIEOFF_RATE, END_OF_PERIOD_TIME
+from .office import add_ventilation_matrix, populate_workplace
 
 
 def run_simulation(

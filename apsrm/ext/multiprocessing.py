@@ -14,9 +14,11 @@
 
 import os
 import random
-import numpy as np
 from multiprocessing.managers import SyncManager
+
+import numpy as np
 from numpy.random import SeedSequence
+
 
 class ProcessSeeder(object):
     class _Seeder:

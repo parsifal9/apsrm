@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import numpy as np
 import networkx as nx
+import numpy as np
+
 from ..config import END_OF_PERIOD_TIME
 from ._base import VentilationSystem
-from ._standard_ventilation import StandardVentilationSystem
 from ._pseudo_ventilation import PseudoVentilationSystem
-
+from ._standard_ventilation import StandardVentilationSystem
 
 
 def _get_subsystems(ventilation_matrix):

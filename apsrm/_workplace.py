@@ -11,19 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Contains the implementation of :py:class:`Workplace`."""
 
+from abc import ABC, abstractmethod
 from functools import reduce
 from itertools import chain, repeat
-from abc import ABC, abstractmethod
-from random import sample
 from math import floor
+from random import sample
+
 import numpy as np
-from .config import END_OF_PERIOD_TIME
+
 from .interval import TimeInterval
 from .ventilation import create_ventilation_system
-
 
 
 class EveryoneInfected(Exception):
@@ -37,7 +36,6 @@ class EveryoneInfected(Exception):
     def __init__(self, period):
         self.period = period
         super().__init__(f'Everyone infected at period {period}')
-
 
 
 class Gathering(TimeInterval):
@@ -56,6 +54,7 @@ class Gathering(TimeInterval):
 
     *\\*args* and *\\**kwargs* are passed to the base class constructor.
     """
+
     def __init__(self, start, end, box, *args, **kwargs):
         super().__init__(start, end, *args, **kwargs)
         self.box = box
@@ -82,7 +81,8 @@ class Gathering(TimeInterval):
         # check the number of participants first, we add the 'new' participant
         # and check the size of the resulting set.
         self.participants.add(participant)
-        if not force_participation and self.box.max_occupancy < len(self.participants):
+        if not force_participation and self.box.max_occupancy < len(
+                self.participants):
             self.participants.remove(participant)
             raise Exception('box capacity reached, cannot add paticipant')
 
@@ -107,7 +107,8 @@ class Gathering(TimeInterval):
         # check the number of participants first, we add the 'new' participants
         # and check the size of the resulting set.
         self.participants.update(participants)
-        if not force_participation and self.box.max_occupancy < len(self.participants):
+        if not force_participation and self.box.max_occupancy < len(
+                self.participants):
             self.participants -= participants
             raise Exception('box capacity reached, cannot add paticipants')
 
@@ -122,8 +123,6 @@ class Gathering(TimeInterval):
         # TODO: Are the semantics here 'correct'...
         #: or am I just trying to be clever?
         return len(self.participants)
-
-
 
 
 class GatheringGenerator(ABC):
@@ -157,8 +156,6 @@ class GatheringGenerator(ABC):
         :return: A list of gatherings.
         :rtype: list[apsrm.Gathering]
         """
-        pass
-
 
 
 class PeriodGenerator(ABC):
@@ -186,8 +183,6 @@ class PeriodGenerator(ABC):
 
         :rtype: tuple[list[apsrm.interval.TimeInterval], list[apsrm.interval.TimeInterval]]
         """
-        pass
-
 
 
 class Workplace:
@@ -215,6 +210,7 @@ class Workplace:
     :ivar set[apsrm.Person] visitors: visitors to the workplace in a single
         period.
     """
+
     def __init__(self, box_types, worker_types, operates_full_period=False):
         self._box_types = box_types
         self._worker_types = worker_types
@@ -224,7 +220,6 @@ class Workplace:
         self.persons = set()
         self.ventilation_system = None
         self.reset(True)
-
 
     def reset(self, full=False):
         """Reset the state of this workplace.
@@ -254,18 +249,16 @@ class Workplace:
         for person in self.persons:
             person.reset(full)
 
-
-    def set_ventilation_properties(
-            self,
-            ventilation_matrix = None,
-            hvac_box_type = None,
-            external_ventilation = None,
-            external_ventilation_outflow = None,
-            external_ventilation_inflow = None,
-            internal_filtering_volume = 0.,
-            internal_filtering_efficiency = 0.,
-            hvac_return_filtering_efficiency = 0.,
-            force_standard_hvac_system = False):
+    def set_ventilation_properties(self,
+                                   ventilation_matrix=None,
+                                   hvac_box_type=None,
+                                   external_ventilation=None,
+                                   external_ventilation_outflow=None,
+                                   external_ventilation_inflow=None,
+                                   internal_filtering_volume=0.,
+                                   internal_filtering_efficiency=0.,
+                                   hvac_return_filtering_efficiency=0.,
+                                   force_standard_hvac_system=False):
         """Set the ventilation properties for this workplace.
 
         :return: The previously set ventilation system.
@@ -277,19 +270,18 @@ class Workplace:
         # Note that all the conditions on ventilation_matrix are checked in
         # create_ventilation_system.
         self.ventilation_system = create_ventilation_system(
-            boxes = self.boxes,
-            ventilation_matrix = ventilation_matrix,
-            hvac_box_type = hvac_box_type,
-            external_ventilation = external_ventilation,
-            external_ventilation_outflow = external_ventilation_outflow,
-            external_ventilation_inflow = external_ventilation_inflow,
-            internal_filtering_volume = internal_filtering_volume,
-            internal_filtering_efficiency = internal_filtering_efficiency,
-            hvac_return_filtering_efficiency = hvac_return_filtering_efficiency,
-            force_standard_hvac_system = force_standard_hvac_system)
+            boxes=self.boxes,
+            ventilation_matrix=ventilation_matrix,
+            hvac_box_type=hvac_box_type,
+            external_ventilation=external_ventilation,
+            external_ventilation_outflow=external_ventilation_outflow,
+            external_ventilation_inflow=external_ventilation_inflow,
+            internal_filtering_volume=internal_filtering_volume,
+            internal_filtering_efficiency=internal_filtering_efficiency,
+            hvac_return_filtering_efficiency=hvac_return_filtering_efficiency,
+            force_standard_hvac_system=force_standard_hvac_system)
 
         return vs
-
 
     def remove_ventilation_system(self):
         # TODO: Should reset be called on vs before returning?
@@ -300,7 +292,6 @@ class Workplace:
         self.reset(True)
         return vs
 
-
     def add_box(self, box):
         if box not in self.boxes:
             try:
@@ -310,7 +301,8 @@ class Workplace:
 
             if is_meeting_room:
                 if box.max_occupancy is None:
-                    raise Exception('meeting room with unspecified capacity detected')
+                    raise Exception(
+                        'meeting room with unspecified capacity detected')
                 if box.max_occupancy == 0:
                     raise Exception('meeting room with zero capacity detected')
 
@@ -320,37 +312,35 @@ class Workplace:
             # TODO: emit a warning
             pass
 
-
     def add_person(self, person):
         # TODO: should we be checking if this person is already added?
         self.persons.add(person)
-
 
     def add_visitor(self, person):
         # TODO: should we be checking if this person is already added?
         self.visitors.add(person)
 
-
     def add_generator(self, generator):
         self._generators.append(generator)
 
-
-    def run_period(
-            self,
-            period,
-            pathogen,
-            emissions_calculator,
-            raw_schedules = None):
+    def run_period(self,
+                   period,
+                   pathogen,
+                   emissions_calculator,
+                   raw_schedules=None):
 
         if raw_schedules is None:
             # generate meetings
             meeting_schedules = self._generate_gatherings(period)
 
             # generate schedules for all people
-            raw_schedules = {p: p.generate_schedule(
-                period,
-                [ms for ms in meeting_schedules if p in ms.participants],
-                emissions_calculator) for p in chain(self.persons, self.visitors)}
+            raw_schedules = {
+                p: p.generate_schedule(
+                    period,
+                    [ms for ms in meeting_schedules if p in ms.participants],
+                    emissions_calculator)
+                for p in chain(self.persons, self.visitors)
+            }
 
         # add infected intervals to boxes
         infected_schedules = {p: s for p, s in raw_schedules.items() \
@@ -366,8 +356,7 @@ class Workplace:
         # calculate viral concentrations in boxes
         if self.ventilation_system is None:
             self.ventilation_system = create_ventilation_system(
-                self.boxes,
-                operates_full_period = self.operates_full_period)
+                self.boxes, operates_full_period=self.operates_full_period)
 
         # prepare the shedding rates and time intervals for the boxes
         self.day_start, self.day_end = \
@@ -389,16 +378,10 @@ class Workplace:
 
         return max(prs_of_infection)
 
+    def _do_infect_random_persons(self, persons, pathogen, time, n,
+                                  ignore_infection_status):
 
-    def _do_infect_random_persons(
-            self,
-            persons,
-            pathogen,
-            time,
-            n,
-            ignore_infection_status):
-
-        assert(n >= 0)
+        assert (n >= 0)
 
         # TODO: emit a warning
         if n == 0:
@@ -428,49 +411,49 @@ class Workplace:
 
         return n
 
-
     def infect_random_persons(self,
-            pathogen,
-            time=-1,
-            n=1,
-            ignore_infection_status=False):
-        return self._do_infect_random_persons(self.persons,
-            pathogen, time, n, ignore_infection_status)
-
+                              pathogen,
+                              time=-1,
+                              n=1,
+                              ignore_infection_status=False):
+        return self._do_infect_random_persons(self.persons, pathogen, time, n,
+                                              ignore_infection_status)
 
     def infect_random_visitors(self,
-            pathogen,
-            time=-1,
-            n=1,
-            ignore_infection_status=False):
-        return self._do_infect_random_persons(self.visitors,
-            pathogen, time, n, ignore_infection_status)
-
+                               pathogen,
+                               time=-1,
+                               n=1,
+                               ignore_infection_status=False):
+        return self._do_infect_random_persons(self.visitors, pathogen, time, n,
+                                              ignore_infection_status)
 
     def count_infected_in_period(self, period, include_visitors=False):
         # TODO: implies closed on left... is that correct?
         res = sum(p.time_infected is not None and p.period_infected == period
-            for p in self.persons)
+                  for p in self.persons)
 
         if include_visitors:
-            res += sum(p.time_infected is not None and p.period_infected == period
+            res += sum(
+                p.time_infected is not None and p.period_infected == period
                 for p in self.visitors)
 
         return res
-
 
     def count_infected(self, include_visitors=False):
         res = sum(p.time_infected is not None and p.time_infected >= 0
-            for p in self.persons)
+                  for p in self.persons)
 
         if include_visitors:
             res += sum(p.time_infected is not None and p.time_infected >= 0
-                for p in self.visitors)
+                       for p in self.visitors)
 
         return res
 
-
-    def run_testing(self, test, period, only_symptomatic=True, proportion_to_test=None):
+    def run_testing(self,
+                    test,
+                    period,
+                    only_symptomatic=True,
+                    proportion_to_test=None):
         """Run testing.
 
         If *only\_symptomatic* is *True*, then no random testing will be done,
@@ -495,6 +478,7 @@ class Workplace:
             than or equal to one, then all workers are tested. If less than
             zero, and exception is raised.
         """
+
         def test_and_set(person, period):
             person.detected = test(person, period)
             return person.detected
@@ -504,21 +488,27 @@ class Workplace:
                 p in self.persons if p.shows_symptoms_by(period) and p.is_honest)
         else:
             if proportion_to_test is None:
-                return any(test_and_set(person, period) for person in self.persons)
+                return any(
+                    test_and_set(person, period) for person in self.persons)
             else:
                 if proportion_to_test >= 1.:
-                    return any(test_and_set(person, period) for person in self.persons)
+                    return any(
+                        test_and_set(person, period)
+                        for person in self.persons)
                 elif proportion_to_test < 0.:
-                    raise Exception('proportion to test must be greater than zero.')
+                    raise Exception(
+                        'proportion to test must be greater than zero.')
                 else:
                     return any(set(
                         sample(self.persons, floor(len(self.persons) * proportion_to_test)) \
                         + [p for p in self.persons if p.shows_symptoms_by(period) and p.is_honest]))
 
-
     def _generate_gatherings(self, period):
+
         def reducer(gatherings, gen):
             ngatherings = gen.create_gatherings(self, period, gatherings)
-            return gatherings if ngatherings is None else (gatherings + ngatherings)
+            return gatherings if ngatherings is None else (gatherings +
+                                                           ngatherings)
+
         ret = reduce(reducer, self._generators, [])
         return ret

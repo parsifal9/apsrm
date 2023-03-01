@@ -15,16 +15,19 @@
 import os
 import pickle
 from io import StringIO
-import pandas as pd
-from pandas.api.types import CategoricalDtype
+
 import nbconvert as nbc
 import nbformat as nbf
+import pandas as pd
+from pandas.api.types import CategoricalDtype
 
 KERNEL = "python3"
 OUTPUT_BASE_DIR = '../outputs'
 
+
 def opath(base, filename):
     return os.path.join(OUTPUT_BASE_DIR, base, filename)
+
 
 EVELEIGH_RESULTS = opath('eveleigh', 'all_results.pkl')
 OFFICE_RESULTS = opath('office', 'all_results.pkl')
@@ -40,14 +43,10 @@ REPORT_NOTEBOOKS = [
 
     # for questacon
     'questacon/simulation.ipynb'
-    ]
+]
 
 
-
-def generate_means_tables(
-        results,
-        R,
-        baseline_column = 'BAU'):
+def generate_means_tables(results, R, baseline_column='BAU'):
 
     means = results[results.any_detected].groupby(['intervention']).mean()
     counts = results[results.any_detected].groupby('intervention').size()
@@ -61,7 +60,6 @@ def generate_means_tables(
     return means
 
 
-
 def generate_combined_means_table(output_file_name):
 
     def load_infection_counts(file_name):
@@ -69,8 +67,10 @@ def generate_combined_means_table(output_file_name):
             all_results, R = pickle.load(pkl)
 
         infection_counts = pd.concat([r[0] for r in all_results])
-        dt = CategoricalDtype(categories=[r[1] for r in all_results], ordered=True)
-        infection_counts['intervention'] = infection_counts['intervention'].astype(dt)
+        dt = CategoricalDtype(categories=[r[1] for r in all_results],
+                              ordered=True)
+        infection_counts['intervention'] = infection_counts[
+            'intervention'].astype(dt)
 
         return infection_counts, R
 
@@ -90,36 +90,38 @@ def generate_combined_means_table(output_file_name):
 
     # Write the header
     output.write('\n'.join([
-        r'\begin{table}[H]',
-        r'\rowcolors{2}{gray!25}{white}',
-        r'\centering',
+        r'\begin{table}[H]', r'\rowcolors{2}{gray!25}{white}', r'\centering',
         r'\scriptsize',
         r"\caption{Average number of workers infected and average first period in which a case is detected for each intervention for each site considered. Here ``H'' refers to the hypothetical office, and ``E'' to the CSIRO Eveleigh office.} \label{tab:comparison}",
         r'\begin{tabular}{m{.075\textwidth}|m{.015\textwidth}m{.015\textwidth}|m{.03\textwidth}m{.03\textwidth}|m{.02\textwidth}m{.02\textwidth}|m{.02\textwidth}R{.02\textwidth}}',
         r'\toprule',
         r'{}&\multicolumn{2}{p{.03\textwidth}|}{Average Day Finished}&\multicolumn{2}{p{.06\textwidth}|}{Average Number of Cases}&\multicolumn{2}{p{.04\textwidth}|}{At Least One Case Detected (\%)}&\multicolumn{2}{p{.04\textwidth}}{Reduction in Number Infected c.f. BAU (\%)}\\',
-        r'Intervention & H & E & H & E & H & E & H & E\\']) + '\n')
+        r'Intervention & H & E & H & E & H & E & H & E\\'
+    ]) + '\n')
 
     formatters = {
         'period_finished': lambda v: str(round(v)),
         'number_infected': '{:0.2f}'.format,
         'any_detected': lambda v: str(round(100 * v)),
-        'relative_number_infected': lambda v: str(round(100 * v))}
+        'relative_number_infected': lambda v: str(round(100 * v))
+    }
 
     # write the rows
     for i, (_, e), (_, o) in zip(me.index, me.iterrows(), mo.iterrows()):
-        cols = ['period_finished', 'number_infected', 'any_detected', 'relative_number_infected']
-        output.write(' & '.join(
-            [i] +
-            [' & '.join([formatters[col](o[col]), formatters[col](e[col])]) for col in cols]) +
-            r'\\' + '\n')
+        cols = [
+            'period_finished', 'number_infected', 'any_detected',
+            'relative_number_infected'
+        ]
+        output.write(' & '.join([i] + [
+            ' & '.join([formatters[col](o[col]), formatters[col](e[col])])
+            for col in cols
+        ]) + r'\\' + '\n')
 
     # write the footer
     output.write('\n'.join([r'\bottomrule', r'\end{tabular}', r'\end{table}']))
 
     with open(output_file_name, 'w') as tex:
         tex.write(output.getvalue())
-
 
 
 def run_notebook(path):
@@ -135,6 +137,6 @@ def run_notebook(path):
         print('FAILURE: {}'.format(path))
 
 
-
-for f in REPORT_NOTEBOOKS: run_notebook(f)
+for f in REPORT_NOTEBOOKS:
+    run_notebook(f)
 generate_combined_means_table(opath('.', 'comparison_table.tex'))

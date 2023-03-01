@@ -25,8 +25,8 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
-import sphinx_readable_theme
 
+import sphinx_readable_theme
 
 # -- Project information -----------------------------------------------------
 

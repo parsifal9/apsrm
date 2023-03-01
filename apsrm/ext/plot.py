@@ -13,14 +13,16 @@
 # limitations under the License.
 
 import re
-from math import floor
-from functools import reduce
 from collections import defaultdict
-import numpy as np
-import matplotlib.pyplot as plt
+from functools import reduce
+from math import floor
+
 import matplotlib as mpl
 import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.collections import PatchCollection
+
 from ..config import DEFAULT_PATHOGEN_DIEOFF_RATE
 
 ONE_MINUTE = 1./60.

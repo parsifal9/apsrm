@@ -11,20 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Contains the implementation of :py:class:`Box`."""
 
-from math import floor
 from copy import copy
+from math import floor
 from pprint import pformat
-from typing import Union, Any
+from typing import Any, Union
+
 import numpy as np
-from .interval import (
-    TimeInterval,
-    intermediate_intervals,
-    get_overlapping_interval,
-    merge_interval)
-from ._pathogen import concentration_at_time
+
+from .interval import TimeInterval, get_overlapping_interval, merge_interval
+
 
 class Box:
     """Represents a (closed) space (room or HVAC system).
@@ -54,11 +51,8 @@ class Box:
     :param dict[str, Any] \\**kwargs: Items set as attributes on the instance.
     """
 
-    def __init__(self,
-            volume:float,
-            use: Any,
-            max_occupancy: Union[int, None],
-            **kwargs):
+    def __init__(self, volume: float, use: Any,
+                 max_occupancy: Union[int, None], **kwargs):
         self.volume = volume
         self.use = use
         self.max_occupancy = None \
@@ -70,9 +64,8 @@ class Box:
 
         self.reset(True)
 
-        for k, v in kwargs.items(): setattr(self, k, v)
-
-
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
     def reset(self, full):
         """Reset the state of this box.
@@ -90,9 +83,7 @@ class Box:
         self.infected_intervals = []
         self.total_exposure_risk = 0.
 
-
-
-    def add_infected_interval(self, interval, _loop = 0):
+    def add_infected_interval(self, interval, _loop=0):
         """Add an infected interval to this box.
 
         The interval is expected to have the following attributes set:
@@ -125,16 +116,12 @@ class Box:
 
         if len(overlapping_indexes) == 0:
             # we don't have any overlapping intervals, so merge this one
-            new_interval = TimeInterval(
-                interval.start,
-                interval.end,
-                infected_people = [interval.person],
-                shedding = interval.shedding)
+            new_interval = TimeInterval(interval.start,
+                                        interval.end,
+                                        infected_people=[interval.person],
+                                        shedding=interval.shedding)
 
-            merge_interval(
-                new_interval,
-                self.infected_intervals,
-                False)
+            merge_interval(new_interval, self.infected_intervals, False)
 
             return
 
@@ -148,22 +135,23 @@ class Box:
                 self.infected_intervals[index + offset] = TimeInterval(
                     old_interval.start,
                     interval.start,
-                    infected_people = old_interval.infected_people[:],
+                    infected_people=old_interval.infected_people[:],
                     shedding=old_interval.shedding)
                 offset += 1
-                self.infected_intervals.insert(index + offset, TimeInterval(
-                    interval.start,
-                    old_interval.end,
-                    infected_people = old_interval.infected_people[:],
-                    shedding=old_interval.shedding))
+                self.infected_intervals.insert(
+                    index + offset,
+                    TimeInterval(
+                        interval.start,
+                        old_interval.end,
+                        infected_people=old_interval.infected_people[:],
+                        shedding=old_interval.shedding))
 
             elif old_interval.start > interval.start:
                 # add a new interval before the existing interval
-                new_interval = TimeInterval(
-                    interval.start,
-                    old_interval.start,
-                    infected_people = [interval.person],
-                    shedding = interval.shedding)
+                new_interval = TimeInterval(interval.start,
+                                            old_interval.start,
+                                            infected_people=[interval.person],
+                                            shedding=interval.shedding)
                 self.infected_intervals.insert(index + offset, new_interval)
                 # adjust interval because we might end up looping and we need
                 # to take account of what we have done
@@ -172,7 +160,9 @@ class Box:
 
             # the overlapping interval: replace old interval
             new_interval = get_overlapping_interval(interval, old_interval)
-            new_interval.infected_people = old_interval.infected_people[:] + [interval.person]
+            new_interval.infected_people = old_interval.infected_people[:] + [
+                interval.person
+            ]
             new_interval.shedding = old_interval.shedding + interval.shedding
             self.infected_intervals[index + offset] = new_interval
             interval.start = new_interval.end
@@ -196,16 +186,12 @@ class Box:
 
         self.add_infected_interval(interval, _loop + 1)
 
-
-
     def add_exposure_risk(self, risk):
         """Add exposure risk to this box.
 
         :param float risk: The risk to add.
         """
         self.total_exposure_risk += risk
-
-
 
     def concentration_at_time(self, time, pathogen_dieoff_rate):
         """Retrieve the airborne viral concentration at time *time*.
@@ -218,14 +204,10 @@ class Box:
         """
         return self.ventilation_system.concentration_at_time(self, time)
 
-
-
     def __repr__(self):
         if self.infected_intervals is not None:
             return 'Box({}, {}, {}, {})'.format(
-                self.volume,
-                self.use,
-                self.max_occupancy,
+                self.volume, self.use, self.max_occupancy,
                 pformat(self.infected_intervals))
 
         return 'Box({}, {})'.format(self.volume, self.max_occupancy)

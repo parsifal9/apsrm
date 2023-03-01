@@ -15,22 +15,15 @@
 import os
 from enum import Enum
 from math import floor
+
 import numpy as np
 import pandas as pd
 from scipy.stats import poisson
-from apsrm import (
-    Person,
-    Workplace,
-    Box)
-from apsrm.ext.office import (
-    EgressGenerator,
-    MeetingGenerator,
-    GatheringVisits)
-from apsrm.ext.simulation import (
-    EmissionsCalculator,
-    create_workplace as _create_workplace)
 
-
+from apsrm import Box, Person, Workplace
+from apsrm.ext.office import EgressGenerator, GatheringVisits, MeetingGenerator
+from apsrm.ext.simulation import EmissionsCalculator
+from apsrm.ext.simulation import create_workplace as _create_workplace
 
 AVERAGE_VISITORS_PER_MEETING = .25
 

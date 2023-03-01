@@ -11,32 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Contains the implementation of :py:class:`Person`."""
 
 from copy import copy
-from functools import reduce
-from math import exp, floor
+from math import floor
+
 import numpy as np
-from scipy.stats import (
-    bernoulli,
-    norm as normal,
-    rv_discrete as categorical)
+from scipy.stats import bernoulli
+from scipy.stats import norm as normal
+from scipy.stats import rv_discrete as categorical
+
 from .config import END_OF_PERIOD_TIME
-from .interval import (
-    TimeInterval,
-    intermediate_intervals,
-    get_overlapping_interval,
-    no_overlaps,
-    no_gaps)
-
-
+from .interval import (TimeInterval, get_overlapping_interval,
+                       intermediate_intervals, no_gaps, no_overlaps)
 
 _lens = np.arange(-30., 30., 1., dtype='float')
 _pdfs = np.diff(normal(0., 10.).cdf(_lens))
 _pdfs /= np.sum(_pdfs)
 _DAY_START_END_NOISE_IN_MINUTES = categorical(values=[_lens[1:], _pdfs])
-
 
 
 class Person:
@@ -55,14 +47,14 @@ class Person:
     #: The efficiency of the mask at reducing the virus shed by an infectious
     #: person. Used to proportionally reduce the virus they breath out. This
     #: is intended as a default that could be overriden on instances.
-    shedding_filter_efficiency  = 0.
+    shedding_filter_efficiency = 0.
 
     def __init__(self, age, **kwargs):
         self.age = age
         self._generators = list()
-        for k, v in kwargs.items(): setattr(self, k, v)
+        for k, v in kwargs.items():
+            setattr(self, k, v)
         self.reset(True)
-
 
     def reset(self, full):
         """Reset the state of this ventilation system.
@@ -85,12 +77,11 @@ class Person:
             self.vaccine_history = []
             self.starting_intervals = []
 
-
     @property
     def period_infected(self) -> int:
         """The period this person became infected."""
-        return None if self.time_infected is None else floor(self.time_infected)
-
+        return None if self.time_infected is None else floor(
+            self.time_infected)
 
     def vaccinate(self, time, vaccine):
         """Vaccinate this person.
@@ -103,12 +94,9 @@ class Person:
         """
         self.vaccine_history.append((time, vaccine))
 
-
     def _notify_of_infection(self, time):
         """Meant to be overloaded by sub classes to respond to infection
         notifications."""
-        pass
-
 
     def infect(self, time, pathogen):
         """Set the time at which this person becomes infected.
@@ -124,32 +112,24 @@ class Person:
         self.is_honest = pathogen.is_honest(self)
         self._notify_of_infection(time)
 
-
     def is_infected_by(self, time):
         return self.time_infected is not None and self.time_infected <= time
-
 
     def shows_symptoms_by(self, time):
         return self.time_infected is not None and \
             (time - self.time_infected) >= self.incubation_period
 
-
     def add_generator(self, generator):
         self._generators.append(generator)
-
 
     def add_generators(self, generators):
         self._generators += generators
 
-
     def active_during_period(self, period):
         return True
 
-
-    def generate_schedule(self,
-            period: int,
-            gatherings: list,
-            emissions_calculator):
+    def generate_schedule(self, period: int, gatherings: list,
+                          emissions_calculator):
         """Generate a schedule of activities for a period.
 
         :param period: Period to generate the schedule for.
@@ -166,12 +146,11 @@ class Person:
 
         # TODO: Warn when we drop an interval...
         # because it overlaps with self.starting_intervals).
-        my_intervals = [TimeInterval(
-            g.start,
-            g.end,
-            gathering=g,
-            box=g.box) for g in gatherings if g.does_not_overlap_any(
-                self.starting_intervals)] + self.starting_intervals
+        my_intervals = [
+            TimeInterval(g.start, g.end, gathering=g, box=g.box)
+            for g in gatherings
+            if g.does_not_overlap_any(self.starting_intervals)
+        ] + self.starting_intervals
 
         self.starting_intervals = []
 
@@ -182,10 +161,11 @@ class Person:
 
         if work_day is None:
             assert len(my_intervals) > 0
-            work_day = TimeInterval(my_intervals[ 0].start, my_intervals[-1].end)
+            work_day = TimeInterval(my_intervals[0].start,
+                                    my_intervals[-1].end)
         elif len(my_intervals) > 0:
-            work_day.start = min(my_intervals[ 0].start, work_day.start)
-            work_day.end   = max(my_intervals[-1].end,   work_day.end)
+            work_day.start = min(my_intervals[0].start, work_day.start)
+            work_day.end = max(my_intervals[-1].end, work_day.end)
 
         self.work_day = work_day
 
@@ -217,8 +197,9 @@ class Person:
         assert no_overlaps(my_intervals)
         assert no_gaps(my_intervals)
 
-        my_intervals = [i for i in my_intervals if
-            (i.box is not None and i.length > 0.)]
+        my_intervals = [
+            i for i in my_intervals if (i.box is not None and i.length > 0.)
+        ]
 
         # add this person to every box
         for interval in my_intervals:
@@ -234,18 +215,14 @@ class Person:
 
             for interval in my_intervals:
                 interval.shedding = relative_infectiousness * emissions_calculator.emissions(
-                    period,
-                    self,
-                    interval,
-                    getattr(interval, 'gathering', None))
+                    period, self, interval, getattr(interval, 'gathering',
+                                                    None))
 
         else:
             for interval in my_intervals:
                 interval.breathing_rate = emissions_calculator.breathing_rate(
-                    period,
-                    self,
-                    interval,
-                    getattr(interval, 'gathering', None))
+                    period, self, interval, getattr(interval, 'gathering',
+                                                    None))
 
         # ensure that all intervals end before the end of the period and keep
         # any residuals for the next
@@ -267,17 +244,14 @@ class Person:
             return interval, next_periods_interval
 
         my_intervals = [splitter(i) for i in my_intervals]
-        self.starting_intervals = [i[1] for i in my_intervals if i[1] is not None]
+        self.starting_intervals = [
+            i[1] for i in my_intervals if i[1] is not None
+        ]
 
         return [i[0] for i in my_intervals if i[0] is not None]
 
-
-    def live_with_pathogen(
-            self,
-            period,
-            pathogen,
-            schedule,
-            emissions_calculator):
+    def live_with_pathogen(self, period, pathogen, schedule,
+                           emissions_calculator):
         """Calculate exposure, the resulting risk and potentially infect this person.
 
         :param int period: The period to 'live through'.
@@ -292,20 +266,24 @@ class Person:
         all_intervals = []
         for appointment in schedule:
             box = appointment.box
-            intervals_that_overlap = [bi for bi in box.infected_intervals if bi.overlaps(appointment)]
+            intervals_that_overlap = [
+                bi for bi in box.infected_intervals if bi.overlaps(appointment)
+            ]
             for oi in intervals_that_overlap:
-                overlap                = get_overlapping_interval(appointment, oi)
-                overlap.box            = box
+                overlap = get_overlapping_interval(appointment, oi)
+                overlap.box = box
                 overlap.breathing_rate = appointment.breathing_rate
                 overlap.ingestion_filtering = \
                     emissions_calculator.ingestion_filtering_in_box(self, appointment)
-                overlap.shedding       = oi.shedding
-                overlap.C0             = getattr(oi, 'C0', None)
-                overlap.t_to_start     = overlap.start - oi.start
+                overlap.shedding = oi.shedding
+                overlap.C0 = getattr(oi, 'C0', None)
+                overlap.t_to_start = overlap.start - oi.start
                 all_intervals.append(overlap)
 
-        ingestions = [i.box.ventilation_system.live_with_pathogen(self, i)
-            for i in all_intervals]
+        ingestions = [
+            i.box.ventilation_system.live_with_pathogen(self, i)
+            for i in all_intervals
+        ]
 
         for ingestion, interval in zip(ingestions, all_intervals):
             interval.box.add_exposure_risk(
@@ -322,17 +300,16 @@ class Person:
 
         # TODO: Whether *time* is the period or the time within the period
         # needs to be determined (see the previous todo).
-        if bernoulli.rvs(relative_susceptibility * pr_infection, size=1)[0] == 1:
+        if bernoulli.rvs(relative_susceptibility * pr_infection,
+                         size=1)[0] == 1:
             self.infect(period + .5, pathogen)
 
         return pr_infection
 
-
     def _generate_work_day(self, period):
         return TimeInterval(
-            8.5 + _DAY_START_END_NOISE_IN_MINUTES.rvs(size=1)[0]/60.,
-            17. + _DAY_START_END_NOISE_IN_MINUTES.rvs(size=1)[0]/60.)
-
+            8.5 + _DAY_START_END_NOISE_IN_MINUTES.rvs(size=1)[0] / 60.,
+            17. + _DAY_START_END_NOISE_IN_MINUTES.rvs(size=1)[0] / 60.)
 
     def __repr__(self):
         # TODO: Add the kwargs from __init__

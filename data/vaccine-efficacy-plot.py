@@ -12,14 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import json
+import os
+
 import matplotlib.pyplot as plt
 
 OUTPUT_BASE_DIR = '../outputs'
+
+
 def opath(p):
-    output_base_dir = OUTPUT_BASE_DIR if os.path.exists(OUTPUT_BASE_DIR) else '.'
+    output_base_dir = OUTPUT_BASE_DIR if os.path.exists(
+        OUTPUT_BASE_DIR) else '.'
     return os.path.join(output_base_dir, p)
+
 
 with open('../apsrm/vaccineefficacy.json', 'r') as vef:
     d = json.load(vef)
@@ -28,4 +33,5 @@ with open('../apsrm/vaccineefficacy.json', 'r') as vef:
     plt.ylim(bottom=0.)
     plt.xlabel('Days')
     plt.savefig(opath('vaccine-efficacy.pdf'), bbox_inches='tight')
-    plt.savefig('../doc/source/_static/vaccine-efficacy.png', bbox_inches='tight')
+    plt.savefig('../doc/source/_static/vaccine-efficacy.png',
+                bbox_inches='tight')

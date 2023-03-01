@@ -11,27 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Core components for building spread models."""
 
 import os
 import re
 
-from ._person import Person
-from ._workplace import (
-    Workplace,
-    Gathering,
-    GatheringGenerator,
-    PeriodGenerator,
-    EveryoneInfected)
 from ._box import Box
 from ._pathogen import Pathogen
+from ._person import Person
 from ._testing import BetaBernoulli
-from .ventilation import (
-    random_ventilation,
-    balance_matrix,
-    create_ventilation_system)
 from ._vaccine import Vaccine
+from ._workplace import (EveryoneInfected, Gathering, GatheringGenerator,
+                         PeriodGenerator, Workplace)
+from .ventilation import (balance_matrix, create_ventilation_system,
+                          random_ventilation)
 
 PCRTest = BetaBernoulli
 
@@ -42,5 +35,5 @@ _v_regex = r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*
 
 _version_info_match = re.match(_v_regex, __version__)
 
-__version_info__ = tuple(int(_version_info_match.group(i)) for i in ('major',
-    'minor', 'patch'))
+__version_info__ = tuple(
+    int(_version_info_match.group(i)) for i in ('major', 'minor', 'patch'))

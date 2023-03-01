@@ -11,16 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Contains the implementation of :py:class:`Pathogen`."""
 
-import os
 import json
 import pkgutil
-from math import exp
 from functools import reduce
-from typing import Callable
+from math import exp
 from numbers import Number
+
 from ._person import Person
 
 EMISSIONS = json.loads(pkgutil.get_data(__name__, 'emissions.json'))
@@ -66,15 +64,14 @@ class Pathogen:
         ingested.
     """
 
-    def __init__(
-            self,
-            name,
-            infectivity_function,
-            incubation_period_function,
-            shows_symptoms_function,
-            is_honest_function,
-            dieoff_rate,
-            gamma = 1.):
+    def __init__(self,
+                 name,
+                 infectivity_function,
+                 incubation_period_function,
+                 shows_symptoms_function,
+                 is_honest_function,
+                 dieoff_rate,
+                 gamma=1.):
         self.gamma = gamma
         self.name = name
         self.dieoff_rate = dieoff_rate
@@ -84,12 +81,11 @@ class Pathogen:
         self._is_honest_function = is_honest_function
 
         infs = [infectivity_function(t, None) for t in range(31)]
-        difs = [b-a for a, b in zip(infs[:-1], infs[1:])] + [0.]
+        difs = [b - a for a, b in zip(infs[:-1], infs[1:])] + [0.]
         # assume the infectivity curve has a (maximum) turning point
         assert len(difs) > 2 and difs[-2] <= 0.
-        self._last_time_significant = sum(
-            d > 0. or i > 1e-4 for d, i in zip(difs, infs))
-
+        self._last_time_significant = sum(d > 0. or i > 1e-4
+                                          for d, i in zip(difs, infs))
 
     @staticmethod
     def _get_weights(activity_weights, exhalation_rates):
@@ -105,17 +101,14 @@ class Pathogen:
 
         return emission_rate
 
-
     @classmethod
     def breathing_rate(cls, person, period, activity_weights):
         total, sum_of_weights = cls._get_weights(activity_weights, BREATHING)
         return total / sum_of_weights
 
-
-    def infectivity_at_time_since_infection(self,
-            person: Person,
-            period: Number,
-            activity_weights: any) -> float:
+    def infectivity_at_time_since_infection(self, person: Person,
+                                            period: Number,
+                                            activity_weights: any) -> float:
 
         assert person.time_infected is not None
 
@@ -123,19 +116,17 @@ class Pathogen:
             # ... or throw an exception?
             return 0.
 
-        total, sum_of_weights = self._get_weights(activity_weights, EMISSIONS[self.name])
+        total, sum_of_weights = self._get_weights(activity_weights,
+                                                  EMISSIONS[self.name])
 
         return total * self._infectivity_function(
-                period - person.time_infected,
-                person) / sum_of_weights
-
+            period - person.time_infected, person) / sum_of_weights
 
     def incubation_period(self, person: Person) -> float:
         """The incubation period that *person* will experience."""
         if self._shows_symptoms_function(person):
             return self._incubation_period_function(person)
         return float('inf')
-
 
     def is_honest(self, person: Person) -> bool:
         """Is *person* honest?
@@ -145,7 +136,6 @@ class Pathogen:
         .. todo:: Move this as it is not an aspect of a pathogen... is it?
         """
         return self._is_honest_function(person)
-
 
     def probability_of_infection(self, ingested: Number) -> float:
         """Probability of getting infected given *ingested* quanta of virus has
@@ -162,7 +152,6 @@ class Pathogen:
         # TODO: find a real solution for this.
         return max(0., pr_infection)
 
-
     def still_infectious_at(self, person: Person, period: Number) -> bool:
         """Is *person* still infectious in *period*?
 
@@ -175,7 +164,6 @@ class Pathogen:
 
         return pi is not None \
             and 0. <= (period - pi) <= self._last_time_significant
-
 
 
 def concentration_at_time(t, S, G, V, Vf, pf, pd, C0):
@@ -206,11 +194,10 @@ def concentration_at_time(t, S, G, V, Vf, pf, pd, C0):
     G += Vf * pf / V + pd
 
     if G <= 0.:
-        return C0 + t*S/V
+        return C0 + t * S / V
 
-    k = exp(-G*t)
-    return k*C0 + (1-k)*S/(G*V)
-
+    k = exp(-G * t)
+    return k * C0 + (1 - k) * S / (G * V)
 
 
 def ingestion_by_time(t, S, G, V, Vf, pf, pd, f, p, C0, D0, t0):
@@ -258,7 +245,8 @@ def ingestion_by_time(t, S, G, V, Vf, pf, pd, f, p, C0, D0, t0):
     f = 1. - f
 
     if G <= 0.:
-        return D0 + f*p*(t-t0)*(C0 + .5*S/V*(t + t0))
+        return D0 + f * p * (t - t0) * (C0 + .5 * S / V * (t + t0))
 
-    Q  = G * V
-    return D0 + t*f*p*S/Q - f*p * exp(-G*t0) * (1. - exp(-G*t)) * (S/(Q*G) - C0)
+    Q = G * V
+    return D0 + t * f * p * S / Q - f * p * exp(
+        -G * t0) * (1. - exp(-G * t)) * (S / (Q * G) - C0)

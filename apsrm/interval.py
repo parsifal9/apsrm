@@ -11,13 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Implementation of a tools for dealing with :py:class:`TimeInterval`."""
 
 from functools import reduce
-from typing import List, Sequence, Iterable
 from math import isclose
-
+from typing import Iterable, List
 
 
 class TimeInterval:
@@ -36,26 +34,23 @@ class TimeInterval:
     """
 
     def __init__(self, start, end, **kwargs):
-        assert(start <= end)
-        self.start  = start
-        self.end    = end
+        assert (start <= end)
+        self.start = start
+        self.end = end
 
         # TODO: Might be better to keep this in a separate dict and override __getattr__.
         for k, v in kwargs.items():
             setattr(self, k, v)
-
 
     def __repr__(self):
         args = ('name', 'shedding', 'box')
 
         argstr = reduce(
             lambda s, a: s + ('' if not hasattr(self, a) else ', {}={}'.format(
-                a, getattr(self, a))),
-            args,
+                a, getattr(self, a))), args,
             '{}, {}'.format(self.start, self.end))
 
         return 'TimeInterval({})[{}]'.format(argstr, self.length)
-
 
     def starts_before(self, other):
         """Does this interval start before *other*?
@@ -64,8 +59,7 @@ class TimeInterval:
 
         :rtype: bool
         """
-        return self.start <  other.start
-
+        return self.start < other.start
 
     def starts_after(self, other):
         """Does this interval start after *other*?
@@ -76,7 +70,6 @@ class TimeInterval:
         """
         return self.start >= other.end
 
-
     def ends_before(self, other):
         """Does this interval end before the end of *other*?
 
@@ -84,8 +77,7 @@ class TimeInterval:
 
         :rtype: bool
         """
-        return self.end   <= other.start
-
+        return self.end <= other.start
 
     def ends_after(self, other):
         """Does this interval end after the end of *other*?
@@ -94,8 +86,7 @@ class TimeInterval:
 
         :rtype: bool
         """
-        return self.end   >  other.end
-
+        return self.end > other.end
 
     def overlaps(self, other):
         """Does this interval overlap *other*?
@@ -106,7 +97,6 @@ class TimeInterval:
         """
         return not (self.ends_before(other) or self.starts_after(other))
 
-
     def contains(self, other):
         """Does this interval contain *other*?
 
@@ -116,18 +106,15 @@ class TimeInterval:
         """
         return other.start >= self.start and other.end <= self.end
 
-
     @property
     def length(self):
         """The length of this interval."""
         return self.end - self.start
 
-
     @property
     def midpoint(self):
         """The midpoint of this interval."""
         return .5 * (self.end + self.start)
-
 
     def shift_to_start_of(self, other, shorten):
         """Shift this interval so it overlaps with the start of *other* and
@@ -148,7 +135,6 @@ class TimeInterval:
             else:
                 raise Exception("intervals overlap")
 
-
     def shift_to_end_of(self, other, shorten):
         """Shift this interval so it overlaps with the end of *other* and
         shorten to be contained by *other* if required.
@@ -168,15 +154,13 @@ class TimeInterval:
             else:
                 raise Exception("intervals overlap")
 
-
     def shift_by(self, shift):
         """Shift this interval by *shift*.
 
         :param float shift: The amount to shift this interval by.
         """
         self.start += shift
-        self.end   += shift
-
+        self.end += shift
 
     def shift_to_nearest_end(self, other, shorten):
         """Shift this interval so it overlaps with one of the ends of *other*
@@ -210,14 +194,12 @@ class TimeInterval:
             else:
                 return None
 
-
     def does_not_overlap_any(self, intervals):
         """Does this interval overlap any interval in *intervals*?
 
         :rtype: bool
         """
         return not any(self.overlaps(i) for i in intervals)
-
 
     def remove(self, interval):
         """Remove *interval* from this interval and return the rest as a list.
@@ -242,8 +224,8 @@ class TimeInterval:
 
         return [
             TimeInterval(self.start, interval.start),
-            TimeInterval(interval.end, self.end)]
-
+            TimeInterval(interval.end, self.end)
+        ]
 
 
 def get_overlapping_interval(i1, i2):
@@ -260,7 +242,6 @@ def get_overlapping_interval(i1, i2):
     return None
 
 
-
 def overlap_length(i1, i2):
     """Return the length of the interval that overlaps *i1* and *i2* (i.e. the
     length of the interval that is the union of *i1* and *i2*).
@@ -272,7 +253,6 @@ def overlap_length(i1, i2):
     """
     oi = get_overlapping_interval(i1, i2)
     return 0. if oi is None else oi.length
-
 
 
 def intermediate_intervals(
@@ -289,17 +269,14 @@ def intermediate_intervals(
     """
 
     return reduce(
-        lambda ps, p12: ps + ([TimeInterval(
-            p12[0].end,
-            p12[1].start)] if p12[1].start > p12[0].end else []),
+        lambda ps, p12: ps + ([TimeInterval(p12[0].end, p12[1].start)]
+                              if p12[1].start > p12[0].end else []),
         zip(intervals[:-1], intervals[1:]), [])
 
 
-
-def merge_interval(
-        interval: TimeInterval,
-        others: List[TimeInterval],
-        copy: bool = True) -> List[TimeInterval]:
+def merge_interval(interval: TimeInterval,
+                   others: List[TimeInterval],
+                   copy: bool = True) -> List[TimeInterval]:
     """Merge *interval* into *others*.
 
     Assumes that *interval* does not overlap any interval in *others*, and that
@@ -344,10 +321,8 @@ def merge_interval(
     return others
 
 
-
-def merge_intervals(
-        intervals: List[TimeInterval],
-        others: List[TimeInterval]) -> List[TimeInterval]:
+def merge_intervals(intervals: List[TimeInterval],
+                    others: List[TimeInterval]) -> List[TimeInterval]:
     """Merge each interval in *intervals* into *others*.
 
     This calls :py:func:`merge_interval` for each interval in *intervals*.
@@ -368,10 +343,8 @@ def merge_intervals(
     return others
 
 
-
-def no_overlaps(
-        intervals: Iterable[TimeInterval],
-        other_intervals: Iterable[TimeInterval] = None):
+def no_overlaps(intervals: Iterable[TimeInterval],
+                other_intervals: Iterable[TimeInterval] = None):
     """Check that intervals do not overlap.
 
     If *other_intervals* is *None*, then check that the intervals in
@@ -391,14 +364,12 @@ def no_overlaps(
     return all(not i.overlaps(j) for i in intervals for j in other_intervals)
 
 
-
 def are_sorted(intervals):
     """Check *intervals* are sorted.
 
     This just calls :py:func:`no_overlaps` on *intervals*.
     """
     return no_overlaps(intervals)
-
 
 
 def no_gaps(intervals):
@@ -410,4 +381,5 @@ def no_gaps(intervals):
     """
     assert are_sorted(intervals)
     # remember that all short circuits
-    return all(isclose(a.end, b.start) for a, b in zip(intervals, intervals[1:]))
+    return all(
+        isclose(a.end, b.start) for a, b in zip(intervals, intervals[1:]))

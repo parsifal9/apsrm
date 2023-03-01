@@ -13,7 +13,8 @@
 # limitations under the License.
 
 import os
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 with open(os.path.join(os.path.dirname(__file__), 'version'), 'r') as vf:
     version = vf.read().strip()
@@ -36,11 +37,17 @@ setup(
         "scipy"],
     extras_require={
         "dev": [
+            "autoflake",
             "ipython",
+            "isort",
+            "pre-commit",
+            "pyinstrument",
+            "pylint",
             "pytest",
             "sphinx",
             "sphinx-autodoc-typehints",
-            "sphinx_readable_theme"],
+            "sphinx_readable_theme",
+            "yapf"],
         "notebooks": [
             "jupyter",
             "pandas",

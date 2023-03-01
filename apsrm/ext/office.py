@@ -44,26 +44,21 @@ might be delivery drivers travelling together in a truck, or medical
 professionals performing an operation.
 """
 
-import random
 import abc
-from math import floor
-from functools import reduce
+import random
 from collections import defaultdict
+from functools import reduce
+from math import floor
+
 import numpy as np
-from scipy.stats import (
-    bernoulli,
-    rv_discrete as categorical,
-    norm as normal)
+from scipy.stats import bernoulli
+from scipy.stats import norm as normal
+from scipy.stats import rv_discrete as categorical
+
 from .._box import Box
-from .._workplace import (
-    Gathering,
-    GatheringGenerator,
-    PeriodGenerator)
 from .._person import Person
-from ..interval import (
-    TimeInterval,
-    merge_interval,
-    overlap_length)
+from .._workplace import Gathering, GatheringGenerator, PeriodGenerator
+from ..interval import TimeInterval, merge_interval, overlap_length
 
 
 def _select_and_merge_best_interval(best_interval, current_intervals, available_intervals):

@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import numpy as np
 from math import isclose
-from scipy.integrate import trapezoid, solve_ivp
-from scipy.interpolate import interp1d
+
+import numpy as np
 from scipy import sparse
+from scipy.integrate import solve_ivp, trapezoid
+from scipy.interpolate import interp1d
+
 from ..config import END_OF_PERIOD_TIME
 from ..interval import get_overlapping_interval
 from ._base import VentilationSubSystem
-
-
 
 USE_SPARSE = True
 

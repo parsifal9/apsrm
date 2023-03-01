@@ -15,20 +15,14 @@
 from enum import Enum
 from math import floor
 from typing import Callable
-from scipy.stats import poisson
-from apsrm import (
-    Person,
-    Workplace,
-    Box)
-from apsrm.ext.office import (
-    MeetingGenerator,
-    GatheringVisits,
-    LunchGenerator,
-    ToiletBreakGenerator,
-    EgressGenerator,
-    WorkingGenerator)
-from apsrm.ext.simulation import EmissionsCalculator
 
+from scipy.stats import poisson
+
+from apsrm import Box, Person, Workplace
+from apsrm.ext.office import (EgressGenerator, GatheringVisits, LunchGenerator,
+                              MeetingGenerator, ToiletBreakGenerator,
+                              WorkingGenerator)
+from apsrm.ext.simulation import EmissionsCalculator
 
 AVERAGE_VISITORS_PER_MEETING = .25
 

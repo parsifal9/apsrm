@@ -14,6 +14,7 @@
 
 from abc import ABC, abstractmethod
 
+
 class VentilationSystem(ABC):
     @abstractmethod
     def reset(self, full):

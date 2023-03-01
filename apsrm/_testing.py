@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import json
 import pkgutil
-from scipy.stats import betabinom
-from math import floor
 
+from scipy.stats import betabinom
 
 
 class BetaBernoulli:
@@ -49,11 +47,11 @@ class BetaBernoulli:
         time_since_infection = int(period) - person.period_infected
 
         # TODO: should this handle future infections (like it currently does)?
-        if time_since_infection < 0 or time_since_infection >= len(self._alphas):
+        if time_since_infection < 0 or time_since_infection >= len(
+                self._alphas):
             return False
 
-        return betabinom.rvs(
-            1,
-            self._alphas[time_since_infection],
-            self._betas[time_since_infection],
-            size = 1)[0] == 1.
+        return betabinom.rvs(1,
+                             self._alphas[time_since_infection],
+                             self._betas[time_since_infection],
+                             size=1)[0] == 1.

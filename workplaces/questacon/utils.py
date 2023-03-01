@@ -13,25 +13,21 @@
 # limitations under the License.
 
 import re
+from copy import copy
 from enum import Enum, IntEnum
 from functools import reduce
 from itertools import chain
-from copy import copy
+
 import numpy as np
 import pandas as pd
-from scipy.stats import (
-    bernoulli,
-    uniform,
-    norm as normal,
-    rv_discrete as categorical)
-from apsrm import (
-    Box,
-    Workplace,
-    Person,
-    PeriodGenerator)
+from scipy.stats import bernoulli
+from scipy.stats import norm as normal
+from scipy.stats import rv_discrete as categorical
+from scipy.stats import uniform
+
+from apsrm import Box, PeriodGenerator, Person, Workplace
+from apsrm.ext.simulation import EmissionsCalculator
 from apsrm.interval import TimeInterval
-from apsrm.ext.simulation import (
-    EmissionsCalculator)
 
 
 class WORKER_TYPE(Enum):
@@ -615,7 +611,7 @@ def create_emissions_calculator(pathogen):
 if __name__ == "__main__":
     import os
     import sys
-    from math import floor, ceil
+    from math import ceil, floor
 
 
 

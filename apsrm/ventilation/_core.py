@@ -13,13 +13,11 @@
 # limitations under the License.
 
 import numpy as np
-from nptyping import NDArray, Shape, Float
+from nptyping import Float, NDArray, Shape
+
+from ._hybrid_ventilation import HybridVentilationSystem, _get_subsystems
 from ._pseudo_ventilation import PseudoVentilationSystem
 from ._standard_ventilation import StandardVentilationSystem
-from ._hybrid_ventilation import (
-    _get_subsystems,
-    HybridVentilationSystem)
-
 
 
 def create_ventilation_system(

@@ -13,11 +13,8 @@
 # limitations under the License.
 
 import pytest as pt
-from apsrm.interval import (
-    TimeInterval,
-    merge_interval,
-    intermediate_intervals)
 
+from apsrm.interval import TimeInterval, intermediate_intervals, merge_interval
 
 
 def test_merge_interval():
@@ -58,13 +55,13 @@ def test_merge_interval():
     assert res[0] == i
 
 
-
 def test_interemediate_intervals():
     intervals = [
-            TimeInterval(1., 2.),
-            TimeInterval(3., 4.),
-            TimeInterval(5., 6.),
-            TimeInterval(6., 7.)]
+        TimeInterval(1., 2.),
+        TimeInterval(3., 4.),
+        TimeInterval(5., 6.),
+        TimeInterval(6., 7.)
+    ]
 
     res = intermediate_intervals(intervals)
     assert len(res) == 2
@@ -72,9 +69,9 @@ def test_interemediate_intervals():
     i = TimeInterval(2., 3.)
     r = res[0]
     assert r.start == pt.approx(i.start)
-    assert r.end   == pt.approx(i.end)
+    assert r.end == pt.approx(i.end)
 
     i = TimeInterval(4., 5.)
     r = res[-1]
     assert r.start == pt.approx(i.start)
-    assert r.end   == pt.approx(i.end)
+    assert r.end == pt.approx(i.end)

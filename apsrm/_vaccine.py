@@ -18,6 +18,7 @@ from math import floor
 
 VACCINE_DATA = json.loads(pkgutil.get_data(__name__, 'vaccineefficacy.json'))
 
+
 class Vaccine:
     """Vaccine.
 
@@ -48,4 +49,5 @@ class Vaccine:
         :rtype: float
         """
         if time_since_vaccination < 0.: return 1.
-        return 1. - VACCINE_DATA[min(floor(time_since_vaccination), len(VACCINE_DATA) - 1)]
+        return 1. - VACCINE_DATA[min(floor(time_since_vaccination),
+                                     len(VACCINE_DATA) - 1)]

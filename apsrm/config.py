@@ -11,12 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Configuration."""
 
 import os
-from multiprocessing import cpu_count
 from math import floor
+from multiprocessing import cpu_count
 
 #: The number of cores to use when multi-processing.
 #:

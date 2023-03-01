@@ -18,8 +18,7 @@ Note that ventilation systems should only be created by calling the (factory)
 function :py:func:`create_ventilation_system`.
 """
 
+from ._base import VentilationSubSystem, VentilationSystem
 from ._core import create_ventilation_system
-from ._base import VentilationSystem, VentilationSubSystem
-from ._standard_ventilation import (
-    random_ventilation, # for re-export
-    balance_matrix)     # for re-export
+from ._standard_ventilation import balance_matrix  # for re-export
+from ._standard_ventilation import random_ventilation  # for re-export

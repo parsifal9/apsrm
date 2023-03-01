@@ -12,39 +12,47 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import re
 import csv
 import json
+import os
+import re
 
-PWD         = os.path.dirname(__file__)
+PWD = os.path.dirname(__file__)
 PARAMS_FILE = os.path.join(PWD, 'Emission.csv')
-JSON_FILE   = os.path.join(PWD, '..', 'apsrm', 'emissions.json')
+JSON_FILE = os.path.join(PWD, '..', 'apsrm', 'emissions.json')
 SPHINX_FILE = os.path.join(PWD, '..', 'doc', 'source', 'emissions.rst')
+
 
 def write_sphinx(json_string):
     with open(SPHINX_FILE, 'w') as sfile:
         print(json_string)
         sfile.writelines([
-            '.. _emissions-data:\n',
-            '\n',
-            'Shedding Data\n',
-            '=============\n',
-            '\n',
+            '.. _emissions-data:\n', '\n', 'Shedding Data\n',
+            '=============\n', '\n',
             'Shedding and breathing data is stored in the file *emissions.json*, which contains::\n',
-            '\n',
-            '    ', re.sub(r'\n', r'\n    ', json_string)])
+            '\n', '    ',
+            re.sub(r'\n', r'\n    ', json_string)
+        ])
+
 
 with open(PARAMS_FILE, 'r') as infile, open(JSON_FILE, 'w') as outfile:
     reader = csv.DictReader(infile)
-    data = {row['activity']: [
-        float(row['virons']) * float(row['breathing_rate']) / 64000.,
-        float(row['breathing_rate'])] for row in reader}
+    data = {
+        row['activity']: [
+            float(row['virons']) * float(row['breathing_rate']) / 64000.,
+            float(row['breathing_rate'])
+        ]
+        for row in reader
+    }
     json_data = {
-        'breathing' : {k:    v[1] for k, v in data.items()},
-        'variants' : {
-            'wt'    : {k:    v[0] for k, v in data.items()},
-            'delta' : {k: 2.*v[0] for k, v in data.items()}
-        }}
+        'breathing': {k: v[1]
+                      for k, v in data.items()},
+        'variants': {
+            'wt': {k: v[0]
+                   for k, v in data.items()},
+            'delta': {k: 2. * v[0]
+                      for k, v in data.items()}
+        }
+    }
     json.dump(json_data, outfile, indent=4)
     write_sphinx(json.dumps(json_data, indent=4))
