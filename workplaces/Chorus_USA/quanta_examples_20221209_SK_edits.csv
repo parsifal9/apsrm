@@ -1,0 +1,28 @@
+﻿vector,site,publication,ERq_q_per_hr,stand_speak_pctile,light_activity_pctile,Notes,N,t_hrs,I0,It (includes index),lambda_ACH,A(m^3),h(m),V_m3,Qb_m3_hr,Cq_q/m3,EBq-q_h (Bazant),p,nq,c_av,ERq q/hr,ER q/m^3,Erq_dynamic q/hr
+SARS-CoV-1,Taipei Hospital,Liao et al. (2005),29,98,89
+SARS-CoV-2,Wuhan Apartment,Bazant and Bush (2021),15,73,35,,3.03,132,1,1.63,0.34,90,2.4,216,0.5,29,14,0.31,0.37,0.01,0.41,0.83,0.422871166
+SARS-CoV-2,Cruise Ship,Bazant and Bush (2021),15,73,35,,3711,288,20,354,8,139000,2.1,291900,0.5,30,15,,,,,,,Uses SI model
+SARS-CoV-2,Wuhan Bus #1,Prentiss et al. (2020),36,83,46
+SARS-CoV-2,Ningbo Bus,Bazant and Bush (2021),45,85,50,,68,1.666666667,1,21,1.25,25,1.8,45,0.5,90,45,0.31,0.37,0.45,25.29,50.58,43.62409413,cf 45 note ~3 infected before boarding
+SARS-CoV-2,Restaurant,Buonanno et al. (2020b),61,87,54
+SARS-CoV-2,Wuhan Bus #2,Prentiss et al. (2020),62,87,54
+SARS-CoV-2,School; Germany,Kriegel et al. (2020),116,91,63
+SARS-CoV-2,Courtroom,Vernez et al. (2021),130,92,65
+SARS-CoV-2,Buddhist Bus,Prentiss et al. (2020),133,92,65
+SARS-CoV-2,School; Israel,Kriegel et al. (2020),139,92,66
+SARS-CoV-2,Meeting,Kriegel et al. (2020),139,92,66
+SARS-CoV-2,Fitness Center,Prentiss et al. (2020),152,93,67
+SARS-CoV-2,Abattoir,Kriegel et al. (2020),232,95,72
+SARS-CoV-2,Call Center,Prentiss et al. (2020),683,98,84
+SARS-CoV-2,Chorus; USA,Miller et al. (2021),970,98,87,,61,2.5,1,53,0.95,180,4.5,810,1,870,0.87,2.01,0.81,620.19,620.19,1003.358272,1.617831443,used mean parameters Table 1
+SARS-CoV-2,Chorus; Germany,Kriegel et al. (2020),4213,NA,95
+Measles,Classroom,Wells (1955);Riley et al. (1962),18,52,23
+Measles,Elementary and secondary schools,Riley (1980),60,65,35,60 is min est.
+Measles,Elementary and secondary schools,Riley (1980),600,84,59,600 is median est.
+Measles,Elementary and secondary schools,Riley (1980),5600,95,80,1500 is max est.
+Measles,Secondary school,Azimi et al. (2020),2765,92,74
+Measles,Pediatrician’s office,Remington et al. (1985),8640,96,83
+Influenza,Human transmission trials in quarantine rooms,Bueno de Mesquita et al. (2020),0.11,41,4
+Influenza,Transmission experiments among ferrets,Zhou et al. (2018),7.95,98,69
+Influenza,Airliner during delay with inoperable ventilation,Moser et al. (1979); Rudnick and Milton (2003),79,NA,95
+Rhinovirus,Transmission trials using card playing games,Dick et al. (1987); Rudnick and Milton (2003),3.1,72,18
