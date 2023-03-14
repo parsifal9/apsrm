@@ -21,24 +21,24 @@ from apsrm import (
     Workplace,
     Box)
 from apsrm.ext.office import (
-    MeetingGenerator,
-    GatheringVisits,
-    LunchGenerator,
-    ToiletBreakGenerator,
-    EgressGenerator,
+#    MeetingGenerator,
+#    GatheringVisits,
+#    LunchGenerator,
+#    ToiletBreakGenerator,
+#    EgressGenerator,
     WorkingGenerator)
 from apsrm.ext.simulation import EmissionsCalculator
 
 
-AVERAGE_VISITORS_PER_MEETING = .25
+#AVERAGE_VISITORS_PER_MEETING = .25
 
 
 class WORKER_TYPE(Enum):
     CHORUS       = 1
 
 class BOX_TYPE(Enum):
-    HALL      = 1
-    HVAC      = 2
+    OPEN_PLAN      = 1
+    HVAC      = 8
 
 class GATHERING_TYPE(Enum):
     MEETING = 1
@@ -53,9 +53,10 @@ class Visitor(Person):
         return None
 
 
-_VISITOR_COUNT_DIST = poisson(AVERAGE_VISITORS_PER_MEETING)
-def visitor_count_generator(gatherings):
-    return _VISITOR_COUNT_DIST.rvs(size=len(gatherings))
+#_VISITOR_COUNT_DIST = poisson(AVERAGE_VISITORS_PER_MEETING)
+
+#def visitor_count_generator(gatherings):
+#    return _VISITOR_COUNT_DIST.rvs(size=len(gatherings))
 
 
 # ### Set the Model up
@@ -67,10 +68,10 @@ def visitor_count_generator(gatherings):
 # shopping through the day.
 def create_workplace(
         n_workers,
-        n_receptionists=1,
+        n_receptionists=0,            #no receptionist
         open_plan_area_per_worker = 7.,
         open_plan_ceiling_height = 4.5,
-        open_plan_total_space = None,
+        open_plan_total_space = 180,
         meeting_room_capacity = None,
         add_visitors = False):
 
@@ -78,24 +79,24 @@ def create_workplace(
     workplace = Workplace(BOX_TYPE, WORKER_TYPE)
 
     # create the period generators
-    lunch_generator        = LunchGenerator()
-    toilet_break_generator = ToiletBreakGenerator()
+#    lunch_generator        = LunchGenerator()
+#    toilet_break_generator = ToiletBreakGenerator()
     working_generator      = WorkingGenerator()
 
     # create the boxes
-    if open_plan_total_space is None:
-        open_plan_total_space = n_workers * open_plan_area_per_worker
-    open_plan_total_space *= open_plan_ceiling_height
+#    if open_plan_total_space is None:
+#        open_plan_total_space = n_workers * open_plan_area_per_worker
+#    open_plan_total_space *= open_plan_ceiling_height
 
-    if meeting_room_capacity is None:
-        meeting_room_capacity = min(20, max(5, .5 * n_workers))
+#    if meeting_room_capacity is None:
+#        meeting_room_capacity = min(20, max(5, .5 * n_workers))
 
-    hall        = Box(180., BOX_TYPE.HALL, None, name='hall')
+    hall        = Box(180., BOX_TYPE.OPEN_PLAN , None, name='hall')
 
     # add boxes to the workplace
     workplace.add_box(hall)
 
-    egress_generator = EgressGenerator(foyer)
+    #egress_generator = EgressGenerator(foyer)
 
     # workplace.add_generator(MeetingGenerator(
     #     GATHERING_TYPE.MEETING,
@@ -112,20 +113,21 @@ def create_workplace(
 
     # working_generator and egress_generator must be added last and in this order.
     # TODO: might want to add two more setters on person for these
-    generators = [lunch_generator, toilet_break_generator, working_generator, egress_generator]
+#    generators = [lunch_generator, toilet_break_generator, working_generator, egress_generator]
+#    generators = [lunch_generator, toilet_break_generator, working_generator]
     def configure_person(person, **kwargs):
-        person.kitchen = kitchen
-        person.toilet  = toilet
+#         person.kitchen = kitchen
+#        person.toilet  = toilet
 
         person.add_generators(generators)
 
         for k, v in kwargs: setattr(person, k, v)
         workplace.add_person(person)
 
-    for i in range(n_receptionists):
-        configure_person(Person(48, role=WORKER_TYPE.RECEPTIONIST, work_box=foyer))
+#    for i in range(n_receptionists):
+#        configure_person(Person(48, role=WORKER_TYPE.RECEPTIONIST, work_box=foyer))
     for i in range(n_workers):
-        configure_person(Person(48, role=WORKER_TYPE.WORKER, work_box=open_plan))
+        configure_person(Person(48, role=WORKER_TYPE.CHORUS, work_box=hall))
 
     return workplace
 
@@ -145,13 +147,13 @@ def create_workplace(
 # number of people in the meeting.
 _activity_weights = {
     # for workers
-    (WORKER_TYPE.Chorus, BOX_TYPE.Hall)   : 'singing_voiced'
+    (WORKER_TYPE.CHORUS, BOX_TYPE.OPEN_PLAN)   : 'singing_voiced'
     }
 
 
 
 _mask_wearing = {
-    (WORKER_TYPE.Chorus, BOX_TYPE.Hall)  : False}
+    (WORKER_TYPE.CHORUS, BOX_TYPE.OPEN_PLAN)  : False}
 
 
 
