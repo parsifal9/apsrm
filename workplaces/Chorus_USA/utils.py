@@ -114,7 +114,7 @@ def create_workplace(
     # working_generator and egress_generator must be added last and in this order.
     # TODO: might want to add two more setters on person for these
 #    generators = [lunch_generator, toilet_break_generator, working_generator, egress_generator]
-#    generators = [lunch_generator, toilet_break_generator, working_generator]
+    generators = [working_generator]
     def configure_person(person, **kwargs):
 #         person.kitchen = kitchen
 #        person.toilet  = toilet
