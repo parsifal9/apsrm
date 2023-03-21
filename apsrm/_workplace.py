@@ -81,8 +81,9 @@ class Gathering(TimeInterval):
         # check the number of participants first, we add the 'new' participant
         # and check the size of the resulting set.
         self.participants.add(participant)
-        if not force_participation and self.box.max_occupancy < len(
-                self.participants):
+        if not force_participation \
+                and self.box.max_occupancy is not None \
+                and self.box.max_occupancy < len(self.participants):
             self.participants.remove(participant)
             raise Exception('box capacity reached, cannot add paticipant')
 
@@ -107,8 +108,9 @@ class Gathering(TimeInterval):
         # check the number of participants first, we add the 'new' participants
         # and check the size of the resulting set.
         self.participants.update(participants)
-        if not force_participation and self.box.max_occupancy < len(
-                self.participants):
+        if not force_participation \
+                and self.box.max_occupancy is not None \
+                and self.box.max_occupancy < len(self.participants):
             self.participants -= participants
             raise Exception('box capacity reached, cannot add paticipants')
 
