@@ -32,7 +32,8 @@ def run_simulation(
         emissions_calculator,
         test=None,
         testing_fraction=None,
-        post_period_functors=None):
+        post_period_functors=None,
+        stop_at_end_of_period=None):
     """A simple function for running a simulation.
 
     In this particular implementation, we infect a single individual at random,
@@ -42,6 +43,9 @@ def run_simulation(
     - the risk to all non-infected individuals is below a given threshold for
       some period of time.
     """
+
+    assert stop_at_end_of_period is None or stop_at_end_of_period >=0, \
+        "stop_at_end_of_period must be None or greater than zero"
 
     # infect a person
     workplace.infect_random_persons(pathogen)
@@ -71,9 +75,10 @@ def run_simulation(
         else:
             max_pr_of_infection = 0.
 
+        # This is kinda ugly. If everyone is infected we don't bother generating schedules (see conditional above)
+        persons_to_check = workplace.persons if all_infected else workplace.infected_schedules.keys()
         risk_still_exists = max_pr_of_infection > 1e-4 or any(
-            pathogen.still_infectious_at(person, period) for person in \
-                workplace.infected_schedules.keys())
+            pathogen.still_infectious_at(person, period) for person in persons_to_check)
 
         if test is not None:
             any_detected = workplace.run_testing(
@@ -86,6 +91,9 @@ def run_simulation(
         if post_period_functors is not None:
             for f in post_period_functors:
                 f(period, workplace)
+
+        if stop_at_end_of_period is not None and period == stop_at_end_of_period:
+            break
 
         period += 1
 
