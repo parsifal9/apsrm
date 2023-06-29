@@ -1,0 +1,315 @@
+--
+title: "Diamond Princess"
+author:
+  - Rob Dunne
+date: "Tuesday, June 27, 2023"
+output:
+  bookdown::pdf_document2:
+    toc: true
+    toc_depth: 2
+    fig_caption: yes
+    extra_dependencies: ["float"]
+header-includes:
+   - \usepackage{amsmath}
+   - \usepackage{placeins}
+bibliography:
+  - dimaond_princess.bib
+---
+
+Wednesday, July 12, 2023
+
+
+Hi Simon,
+
+1) I have added Boxes.csv to https://github.com/parsifal9/apsrm/tree/master/workplaces/Diamond-Princess
+2) I have not connected the cabins to the corridor
+- I am assuming that the cabin door is rarely opened 
+- this keeps the number of boxes down
+- I can add a small air flow from cabin to corridor if we want
+
+3) Zheng et al.
+https://journals.sagepub.com/doi/full/10.1177/1420326X15600041
+ table 3 gives a schedule of possible passenger movements
+
+
+
+
+
+
+Hi Rob,
+This Kosako paper and the Google translation say (p2),
+
+“As an energy-saving measure, a portion of fresh air is taken in and returned to the air. I can let you. has become
+commonplace. Vessel fresh air volume are cabins (30%), public rooms/staircases (50%)”
+So it’s suggesting 30% fresh air in the cabins and 50% in public spaces, whilst conceding 100% would be preferable.
+And two papers by the same author (Zheng). Hius cabin model uses ACH = 8 with 30% fresh air.
+The paper “Zheng_2016_IndoorBuiltEnv_Evaluation of intervention measures for respiratory disease transmission on cruise
+ships.pdf” does exactly what we are trying to do: model how passengers behave on a cruise ship combining a SEIR model
+and an individual transmission model.
+Bruce
+
+
+https://en.wikipedia.org/wiki/Diamond_Princess_(ship)
+
+# Deck 5
+
+- 83 cabins 25 internal 58 external (no balcony) 
+- grades(IB, IC, ID, IE) https://www.cruisemapper.com/cabins/Diamond-Princess-534
+- Max passengers:4        15-17 m^2
+ 
+- Savoy Dining Room   375 m^2
+- Vivaldi Dining Room 375 m^2
+- Grand Plaza         1125 m^2
+- internet cafe 45 m^2
+- toilets 15 m^2
+- lifts 8 m^2
+- open area (inclding corridor and Art Gallery) 1125 m^2
+
+
+```{verbatim, echo=FALSE, eval=FALSE}
+cabins<- paste("P",200:337,sep="")
+cabins<- cabins[-c(14,114)]      #"P213" "P313" are missing
+
+Deck5<-data.frame(room1=cabins,room2= "corridor",code="1",room1.use="cabin",room1.area=16,room1.occupancy=4,room2.use="corridor",room2.area=120, room2.occupancy=0,
+                  ACPH.1.2=0,ACPH.2.1=0,air.volume.moved=0)
+
+other.rooms<-data.frame(
+    room1="savoy dining room",room2= "foyer",code="1",room1.use="dining",room1.area=486,room1.occupancy=136,room2.use="foyer",room2.area=30,
+    room2.occupancy=0, ACPH.1.2=0,ACPH.2.1=0,air.volume.moved=0
+)
+
+Deck5<- data.frame(room=cabins,area=16,use="cabin",occupancy=4)
+write.table(Deck5,"deck5.csv",sep=",",row.names = FALSE)
+#edits now added directly to the file  deck5.csv
+```
+
+```{verbatim , echo=FALSE,eval=FALSE}
+D <- read.table("deck5.csv",fill=TRUE,header=TRUE,sep=",",strip.white=TRUE)
+D
+
+rooms <-D$room
+use <-D$use
+area <- D$area
+occupancy <-  D$occupancy
+
+B<-matrix(0,155,155)
+colnames(B) <-rooms
+rownames(B) <-rooms
+write.csv(B,file="adjacency_deck_5_temp.csv")
+
+#need to be able to make changes to adjacency_deck_5_temp.csv
+# to match edits in  deck5.csv
+A<- read.csv(file="adjacency_deck_5_temp.csv", row.names=1)
+tt<-rbind(cbind(A,rep(0,155)),rep(0,156))
+rownames(tt)[156]<-"open area"
+colnames(tt)[156] <- "open area" 
+write.csv(tt,file="adjacency_deck_5_temp.csv")
+
+```
+```{R, echo=FALSE,eval=FALSE}
+# oops -- I overwrote the file. 
+A<- read.csv(file="adjacency_deck_5_temp.csv", row.names=1)
+A<-A + t(A)
+
+X2<-as.matrix((A>0)+0) #conver it to a logical matrix and then add 0 to convert to numeric
+aa<-colSums(X2)
+bb<-rowSums(X2)
+
+
+A<-as.matrix(A)
+table(A)
+#A
+#    0     1    11   100 
+#24300     8    22     6 
+
+```
+
+-   open plan  -- should include alcove, corridor, utilities (printers etc)
+-   foyer      -- should include reception
+-   female toilet
+-   male toilet
+-   cabin
+
+
+
+
+
+
+
+# Notes
+
+1) no air moves from the cabins to the corridor. Sealed doors that are only opened a few times a day.
+2) Savoy and Vivaldi dining rooms -- 2 seatings 
+3) @zhengEvaluationInterventionMeasures2016 gives a shedule of activities during the day. We could start with that
+
+
+# The process is
+
+1) make a list of room, area, use (office, open plan, foyer, toilet), n_boxes
+2) make an adjacency matrix (n_boxes by n_boxes)  showing  connectedness
+     - 0 -- not connected
+     - 1     toilets          door is generally closed
+     - 2     security door
+	 - 3     cabin door
+     - 10    lift 
+     - 11    door (a closed door, corridor or bar, but often opened)
+     - 100   open plan  (foyer leading to dining room etc)
+
+
+
+3) make and plot a graph (igraph)
+useful for tracking down errors
+
+4) using adjacency code and area, calculate air-exchange
+   --- a room mixes in a time determined by air velocity (induced by air-conditioning) etc
+   --- using Bazant and Bush (appendix), this appears to be about 7.5 minutes, I upped it to 10
+   --- assume that an open-space it already mixed and it is joined to another open space
+   --- let mixing be the exchange of 0.5 of the air volume of the smaller space
+   --- this means that mixing is about smaller.air.volume*3 per hour is moved both ways
+   --- modify (reduce) this for toilets, closable  doors etc
+
+```{r, echo=FALSE,eval=FALSE}
+
+D <- read.table("deck5.csv",fill=TRUE,header=TRUE,sep=",",strip.white=TRUE)
+D
+rooms <-D$room
+use <-D$use
+area <- D$area
+occupancy <-  D$occupancy
+
+
+A<- read.csv(file="adjacency_deck_5_temp.csv", row.names=1)
+A  <- as.matrix(A)
+table(A)
+#    0     1    11   100 
+#24320     4     9     3 
+
+
+
+#tt1 <- which(rowSums(A) !=0)
+#tt2 <- which(colSums(A) !=0)
+#tt<-match(union(names(tt1),names(tt2)),rooms)
+#A<-A[tt,tt]
+#A[A==10]<-100
+#A[A==2]<-10
+#write.csv(A,file="temp.csv")
+A<-A + t(A)
+
+# make graph plots
+library(igraph)
+#rooms <- rooms[tt]
+#use <- use[tt]
+#use.color <- use.color[tt]
+#area <- area[tt]
+#occupancy <-  occupancy[tt]
+
+
+cc <- rainbow(length(unique(use)))
+
+use.color <- as.numeric(as.factor(use))
+table(use,use.color)
+
+#use.color[use=="utilities"] <- use.color[use=="open plan"][1] #amenities joins open plan
+#use.color[use=="corridor"] <- use.color[use=="open plan"][1]  #corridor joins open plan
+#use.color[use=="kitchen"] <- use.color[use=="open plan"][1]  #corridor joins open plan
+#use.color[use=="alcove"] <- use.color[use=="open plan"][1]  #corridor joins open plan
+
+g <- graph_from_adjacency_matrix(A, weighted=TRUE, mode="undirected")
+get.vertex.attribute(g)
+V(g)$color <- cc[use.color]
+V(g)$use <- use
+V(g)$area <- area
+V(g)$occupancy <- occupancy
+cbind(get.vertex.attribute(g)$name,V(g)$color, V(g)$use, V(g)$area, V(g)$occupancy)
+
+#E(g)$width <- E(g)$weight*10 + min(E(g)$weight) + 1 # offset=1
+E(g)$width <- E(g)$weight/10
+
+#l <- layout.fruchterman.reingold(g, niter=5000)
+#l <- layout.circle(g)
+#l <- layout.reingold.tilford(g)
+l <- layout.random(g)
+#l <- layout.kamada.kawai(g)
+plot(g,layout=l,vertex.size=10,vertex.label=V(g)$use)
+#plot(g, vertex.size=V(g)$area,layout=l)
+
+aa<-table(V(g)$use, V(g)$color)
+lengend.text<- rownames(aa)
+lengend.cols<-  colnames(aa)[ apply(aa,1,which.max)]
+legend('topleft',legend=lengend.text,pch=15,cex=2,col= lengend.cols)
+
+plot(g,vertex.size=8,cex=0.15,vertex.label=V(g)$rooms)
+legend('topleft',legend=lengend.text,pch=15,col= lengend.cols)
+
+#png(filename="t.png", height=640, width=1280)
+plot(g,vertex.size=8,cex=0.15,vertex.label=V(g)$rooms)
+legend('topright',legend=lengend.text,pch=15,col= lengend.cols)
+#dev.off()
+
+
+############ different graph package
+require(qgraph)
+qgraph(A)
+qgraph(A,edge.labels=TRUE)  #if you want the weights on the edges as well
+
+
+
+## #####################################################################################################################
+L <- as.data.frame(get.edgelist(g))
+names(L) <- c("room1", "room2")
+L$code <-  E(g)$weight
+L<-L[order(L$room1),]
+L$room1.use <- use[match(L$room1,rooms)]
+L$room1.area <- area[match(L$room1,rooms)]
+L$room1.occupancy <- occupancy[match(L$room1,rooms)]
+
+L$room2.use <- use[match(L$room2,rooms)]
+L$room2.area <- area[match(L$room2,rooms)]
+L$room2.occupancy <- occupancy[match(L$room2,rooms)]
+
+#L$uncorrected.mixing<-3
+#L$uncorrected.ACPH.1.2  <- (L$room1.area*3*3)/(L$room2.area*3)
+#L$uncorrected.ACPH.2.1  <- (L$room2.area*3*3)/(L$room1.area*3)
+  
+
+ACPH.1.2 <- ACPH.2.1 <- air.volume.moved <- rep(NA,dim(L)[[1]])
+for (i in 1:dim(L)[[1]]){
+    L.room1.area <-L$room1.area[i]
+    L.room2.area <-L$room2.area[i]
+    smaller.air.volume <-min(L.room1.area,L.room2.area )*3
+    result = switch(  
+        as.character(L$code[i]),  
+        "1"= {temp  <- (smaller.air.volume*0.5)      #toilet
+        },
+        "2"= {temp  <- (smaller.air.volume*0.5)      #security door
+        },
+        "3" = {temp  <- (smaller.air.volume*0.0)     #cabin door
+        },
+        "10" = {temp  <- (smaller.air.volume*0.1)     #lift 
+        },
+        "11" = {tt<- sample(seq(0.2,0.9,length=5),1)
+            temp  <- (smaller.air.volume*3*tt)       #(a closed door, corridor or bar, but often opened)
+        },
+        "100" = {temp <- (smaller.air.volume*3)      #open plan
+        }
+    )
+    ACPH.1.2[i]   <- temp/(L.room2.area*3)  
+    ACPH.2.1[i]   <- temp/(L.room1.area*3)
+    air.volume.moved[i]  <-temp
+}
+
+
+ 
+
+L$ACPH.1.2  <- ACPH.1.2
+L$ACPH.2.1  <- ACPH.2.1
+L$air.volume.moved  <- air.volume.moved
+rownames(L) <- NULL
+#save(L,file="L_eveleigh_level5.Rdata")
+#write.csv(L,file="Boxes.csv")
+write.csv(L,file="Boxes_test.csv")
+
+
+
+
+```
