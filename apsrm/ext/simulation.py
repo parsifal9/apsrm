@@ -104,17 +104,19 @@ def run_simulation(
 
 
 
-_infectivity_dist    = gamma(3.420, 0, 1.338)
 _incubation_dist     = weibull(3., 0, 7.2)
 _shows_symptoms_dist = bernoulli(.5)
 #_honest_dist = bernoulli(.9)
-_infectivity_binned  = np.diff(_infectivity_dist.cdf(np.arange(25))) / _infectivity_dist.cdf(END_OF_PERIOD_TIME)
+_INFECTIVITY_DIST = gamma(3.420, 0, 1.338)
+_INFECTIVITY_BINNED = np.diff(_INFECTIVITY_DIST.cdf(np.arange(25)))
+_INFECTIVITY_BINNED /= np.max(_INFECTIVITY_BINNED)
+
 def _infectivity(time_diff, person):
     #the following alternative took 70% or so of total run time!
     #lambda time_diff, person: _infectivity_dist.pdf(time_diff),
-    if time_diff < 0. or time_diff >= len(_infectivity_binned):
+    if time_diff < 0. or time_diff >= len(_INFECTIVITY_BINNED):
         return 0.
-    return _infectivity_binned[floor(time_diff)]
+    return _INFECTIVITY_BINNED[floor(time_diff)]
 
 
 
